@@ -1,96 +1,153 @@
+// src/containers/CompleteRequestContainer.tsx
+
 import React, { useEffect, useState } from 'react';
-import {
-  Typography,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Box,
-  CircularProgress
-} from '@mui/material';
+import { Box, Typography, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
+import { useParams } from 'react-router-dom';
 import CompleteRequestForm from './CompleteRequestForm';
-import { SolicitudInformacion } from '../types/types';
 
-interface Props {
-  preloadedRequest?: SolicitudInformacion | null; // Used when user comes from the table view
-}
+// src/mock/mockPendingRequests.ts
 
-const CompleteRequestContainer: React.FC<Props> = ({ preloadedRequest }) => {
-  const [selectedRequest, setSelectedRequest] = useState<SolicitudInformacion | null>(preloadedRequest || null);
-  const [pendingRequests, setPendingRequests] = useState<SolicitudInformacion[]>([]);
-  const [loading, setLoading] = useState(false);
+// src/mock/mockInvestigators.ts
 
-  // Simulate fetching all pending requests if preloadedRequest not passed
+const mockInvestigators = [
+  {id: 1, name: 'TTE. CASTILLO'},
+  {id: 2, name: 'SGTO. MENDOZA'},
+  {id: 3, name: 'SGTO. FLORES'},
+  {id: 4, name: 'TTE. GUTIERREZ'},
+  {id: 5, name: 'SGTO. SANDOVAL'},
+];
+
+
+const mockPendingRequests = [
+  {
+    id: 'req-001',
+    numero_caso: 4321,
+    investigador: 'Sgto. Rodríguez',
+    unidad: 'Unidad Antinarcóticos',
+    sistemas: {
+      segip: true,
+      sinarap: true,
+      itv: false,
+    },
+    sujetos: [
+      {
+        tipo: 'persona',
+        nombres: 'JUAN',
+        apellido_paterno: 'PEREZ',
+        apellido_materno: 'LOPEZ',
+        ci: '12345678',
+        placa: '',
+      },
+      {
+        tipo: 'vehiculo',
+        nombres: '',
+        apellido_paterno: '',
+        apellido_materno: '',
+        ci: '',
+        placa: '1852PHD',
+      },
+    ],
+  },
+  {
+    id: 'req-002',
+    numero_caso: 8765,
+    investigador: 'Tte. Quispe',
+    unidad: 'Unidad de Trata y Tráfico',
+    sistemas: {
+      segip: true,
+      sinarap: false,
+      itv: true,
+    },
+    sujetos: [
+      {
+        tipo: 'persona',
+        nombres: 'MARIA',
+        apellido_paterno: 'GONZALES',
+        apellido_materno: 'RAMIREZ',
+        ci: '98765432',
+        placa: '',
+      },
+    ],
+  },
+  {
+    id: 'req-003',
+    numero_caso: 1023,
+    investigador: 'Sgto. Vargas',
+    unidad: 'Unidad de Robo de Vehículos',
+    sistemas: {
+      segip: false,
+      sinarap: true,
+      itv: true,
+    },
+    sujetos: [
+      {
+        tipo: 'vehiculo',
+        nombres: '',
+        apellido_paterno: '',
+        apellido_materno: '',
+        ci: '',
+        placa: '7291XYZ',
+      },
+    ],
+  },
+];
+
+
+const CompleteRequestContainer: React.FC = () => {
+  const { requestId } = useParams(); // from route if accessed via button
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(requestId || null);
+
+  const [caseNumber, setCaseNumber] = useState('');
+  const [services, setServices] = useState({ segip: false, sinarap: false, itv: false });
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [selectedInvestigator, setSelectedInvestigator] = useState('');
+
   useEffect(() => {
-    if (!preloadedRequest) {
-      setLoading(true);
-      // Replace this with API call
-      setTimeout(() => {
-        setPendingRequests([
-          {
-            numero_caso: 4321,
-            investigador: 'TTE. CASTILLO',
-            unidad_policial: 'FELCC La Paz',
-            sujetos: [
-              { tipo: 'persona', nombres: 'JUAN', apellido_paterno: 'PEREZ', apellido_materno: 'LOPEZ', ci: '12345678', placa: '' },
-              { tipo: 'vehiculo', nombres: '', apellido_paterno: '', apellido_materno: '', ci: '', placa: '1852PHD' }
-            ],
-            sistemas: { segip: true, sinarap: true, itv: true }
-          },
-          {
-            numero_caso: 4567,
-            investigador: 'SGTO. RAMIREZ',
-            unidad_policial: 'FELCC El Alto',
-            sujetos: [
-              { tipo: 'persona', nombres: 'MARIA', apellido_paterno: 'GUTIERREZ', apellido_materno: 'QUISPE', ci: '87654321', placa: '' }
-            ],
-            sistemas: { segip: true, sinarap: false, itv: false }
-          }
-        ]);
-        setLoading(false);
-      }, 1000);
+    if (selectedRequestId) {
+      const request = mockPendingRequests.find((r) => r.id === selectedRequestId);
+      if (request) {
+        setCaseNumber(request.numero_caso.toString());
+        setServices(request.sistemas);
+        setSubjects(request.sujetos);
+        setSelectedInvestigator('');
+      }
     }
-  }, [preloadedRequest]);
-
-  const handleSelect = (caseNumber: number) => {
-    const found = pendingRequests.find(req => req.numero_caso === caseNumber);
-    if (found) {
-      setSelectedRequest(found);
-    }
-  };
+  }, [selectedRequestId]);
 
   return (
     <Box>
-      {!selectedRequest && (
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Seleccione una solicitud de información pendiente:
+      {!requestId && (
+        <>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Seleccione una solicitud pendiente:
           </Typography>
-          {loading ? (
-            <CircularProgress />
-          ) : (
-            <FormControl fullWidth>
-              <InputLabel>Solicitudes pendientes</InputLabel>
-              <Select
-                label="Solicitudes pendientes"
-                onChange={(e) => handleSelect(Number(e.target.value))}
-              >
-                {pendingRequests.map((req) => (
-                  <MenuItem key={req.numero_caso} value={req.numero_caso}>
-                    Caso #{req.numero_caso} — {req.investigador} ({req.unidad_policial})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-        </Box>
+          <FormControl fullWidth sx={{ mb: 4 }}>
+            <InputLabel id="select-request-label">Solicitud</InputLabel>
+            <Select
+              labelId="select-request-label"
+              value={selectedRequestId || ''}
+              label="Solicitud"
+              onChange={(e) => setSelectedRequestId(e.target.value)}
+            >
+              {mockPendingRequests.map((req) => (
+                <MenuItem key={req.id} value={req.id}>
+                  {`Caso ${req.numero_caso} - ${req.investigador} (${req.unidad})`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </>
       )}
 
-      {selectedRequest && (
+      {selectedRequestId && (
         <CompleteRequestForm
-          initialSubjects={selectedRequest.sujetos}
-          initialServices={selectedRequest.sistemas}
-          investigators={['TTE. CASTILLO', 'SGTO. RAMIREZ', 'CBO. MAMANI']}
+          caseNumber={caseNumber}
+          services={services}
+          subjects={subjects}
+          investigators={mockInvestigators}
+          selectedInvestigator={selectedInvestigator}
+          onInvestigatorChange={setSelectedInvestigator}
+          onCaseNumberChange={setCaseNumber}
         />
       )}
     </Box>

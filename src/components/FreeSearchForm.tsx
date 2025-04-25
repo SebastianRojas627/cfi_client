@@ -1,121 +1,89 @@
-import React, { useState } from "react";
+import { useState } from 'react';
 import {
   Box,
   Typography,
+  Radio,
+  RadioGroup,
   FormControlLabel,
-  Checkbox,
   Button,
-  Grid,
-} from "@mui/material";
-import SubjectInput from "./SubjectInput";
-import SearchResults from "./SearchResults";
-import { Services, Subject } from "../types/types";
+} from '@mui/material';
+import ServiceSelector from './ServicesSelector';
+import SubjectForm from './SubjectForm';
+import { Subject } from '../types/types';
 
 const FreeSearchForm: React.FC = () => {
-  const [subject, setSubject] = useState<Subject>({
-    tipo: "persona",
-    nombres: "",
-    apellido_paterno: "",
-    apellido_materno: "",
-    ci: "",
-    placa: "",
-  });
+  const [subjectType, setSubjectType] = useState<'persona' | 'vehiculo'>('persona');
 
-  const [services, setServices] = useState<Services>({
+  const [services, setServices] = useState({
     segip: false,
     sinarap: false,
     itv: false,
   });
 
-  const [results, setResults] = useState<any>(null);
+  const handleServiceChange = (key: keyof typeof services, value: boolean) => {
+    setServices((prev) => ({ ...prev, [key]: value }));
+  };
 
-  const handleServiceChange =
-    (key: keyof Services) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setServices({ ...services, [key]: e.target.checked });
-    };
+  const [subject, setSubject] = useState<Subject>({
+    tipo: 'persona',
+    nombres: '',
+    apellido_paterno: '',
+    apellido_materno: '',
+    ci: '',
+    placa: '',
+  });
 
-  const handleSearch = async () => {
-    const payload = {
-      numero_caso: null,
-      investigador: "Consulta Libre",
-      sujetos: [subject],
-      sistemas: services,
-    };
+  const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const tipo = e.target.value as 'persona' | 'vehiculo';
+    setSubject((prev) => ({
+      tipo,
+      nombres: '',
+      apellido_paterno: '',
+      apellido_materno: '',
+      ci: '',
+      placa: '',
+    }));
+    setSubjectType(tipo);
+  };
 
-    const res = await fetch("/api/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    setResults(data);
+  const handleSearch = () => {
+    // Implement API call to search here
+    console.log('Searching with:', { services, subject });
   };
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
         Búsqueda Libre
       </Typography>
 
-      <Typography variant="h6" gutterBottom mt={3}>
+      <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
         Seleccione las fuentes de información que desea consultar:
       </Typography>
 
-      <Grid
-        container
-        direction="column"
-        alignItems="center"
-        spacing={2}
-        sx={{ mb: 3 }}
-      >
-        {[
-          { key: "segip", label: "SEGIP", numeral: "I" },
-          { key: "sinarap", label: "SINARAP", numeral: "II" },
-          { key: "itv", label: "ITV", numeral: "III" },
-        ].map(({ key, label, numeral }) => (
-          <Grid key={key} sx={{ width: "100%", maxWidth: 400 }}>
-            <Box
-              display="flex"
-              alignItems="center"
-              border={1}
-              borderColor="grey.300"
-              borderRadius={1}
-              px={2}
-              py={1}
-              sx={{ backgroundColor: "#f9f9f9" }}
-            >
-              <Typography variant="subtitle1" sx={{ width: 30, mr: 1 }}>
-                {numeral}.
-              </Typography>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={services[key as keyof Services]}
-                    onChange={handleServiceChange(key as keyof Services)}
-                  />
-                }
-                label={<Typography variant="subtitle1">{label}</Typography>}
-                sx={{ marginLeft: 0 }}
-              />
-            </Box>
-          </Grid>
-        ))}
-      </Grid>
+      <ServiceSelector services={services} onChange={handleServiceChange} />
 
-      <Typography variant="subtitle1" gutterBottom>
-        de la siguiente persona o vehículo:
+      <Typography variant="h6" sx={{ mt: 4 }}>
+        De la siguiente persona o vehículo:
       </Typography>
 
-      <SubjectInput subject={subject} setSubject={setSubject} />
+      <RadioGroup
+        row
+        value={subjectType}
+        onChange={handleTypeChange}
+        sx={{ mt: 1, mb: 3 }}
+      >
+        <FormControlLabel value="persona" control={<Radio />} label="Persona" />
+        <FormControlLabel value="vehiculo" control={<Radio />} label="Vehículo" />
+      </RadioGroup>
 
-      <Box mt={3}>
-        <Button variant="contained" onClick={handleSearch}>
-          Buscar
+      <SubjectForm subject={subject} onChange={setSubject} />
+
+      <Box display="flex" justifyContent="center" sx={{ mt: 4 }}>
+        <Button variant="contained" color="primary" onClick={handleSearch}>
+          Realizar Búsqueda
         </Button>
       </Box>
-
-      {results && <SearchResults results={results} />}
     </Box>
   );
 };
