@@ -1,20 +1,26 @@
-import { Box, Grid, TextField, Typography } from '@mui/material';
-import { Subject } from '../types/types';
+import { Box, Grid, TextField, Typography } from "@mui/material";
+import { SujetoBusqueda, TipoSujeto } from "../api/types";
 
 interface Props {
-  subject: Subject;
-  onChange?: (updated: Subject) => void;
+  subject: SujetoBusqueda;
+  onChange?: (updated: SujetoBusqueda) => void;
   readonly?: boolean;
 }
 
-const SubjectForm: React.FC<Props> = ({ subject, onChange, readonly }) => {
-  const isPersona = subject.tipo === 'persona';
+const SujetoBusquedaForm: React.FC<Props> = ({
+  subject,
+  onChange,
+  readonly,
+}) => {
+  const isPersona = subject.tipo === TipoSujeto.PERSONA;
 
-  const handleChange = (field: keyof Subject) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      onChange({ ...subject, [field]: e.target.value });
-    }
-  };
+  const handleChange =
+    (field: keyof SujetoBusqueda) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChange) {
+        onChange({ ...subject, [field]: e.target.value });
+      }
+    };
 
   return (
     <Box
@@ -24,10 +30,10 @@ const SubjectForm: React.FC<Props> = ({ subject, onChange, readonly }) => {
       px={2}
       py={2}
       mt={2}
-      sx={{ backgroundColor: '#f9f9f9' }}
+      sx={{ backgroundColor: "#f9f9f9" }}
     >
       <Typography variant="subtitle1" gutterBottom>
-        {isPersona ? 'Datos de Persona' : 'Datos de Vehículo'}
+        {isPersona ? "Datos de Persona" : "Datos de Vehículo"}
       </Typography>
 
       <Grid container spacing={2}>
@@ -37,8 +43,8 @@ const SubjectForm: React.FC<Props> = ({ subject, onChange, readonly }) => {
               <TextField
                 label="Nombres"
                 fullWidth
-                value={subject.nombres || ''}
-                onChange={handleChange('nombres')}
+                value={subject.nombres || ""}
+                onChange={handleChange("nombres")}
                 disabled={readonly}
               />
             </Grid>
@@ -46,8 +52,8 @@ const SubjectForm: React.FC<Props> = ({ subject, onChange, readonly }) => {
               <TextField
                 label="Apellido Paterno"
                 fullWidth
-                value={subject.apellido_paterno || ''}
-                onChange={handleChange('apellido_paterno')}
+                value={subject.apellido_paterno || ""}
+                onChange={handleChange("apellido_paterno")}
                 disabled={readonly}
               />
             </Grid>
@@ -55,8 +61,8 @@ const SubjectForm: React.FC<Props> = ({ subject, onChange, readonly }) => {
               <TextField
                 label="Apellido Materno"
                 fullWidth
-                value={subject.apellido_materno || ''}
-                onChange={handleChange('apellido_materno')}
+                value={subject.apellido_materno || ""}
+                onChange={handleChange("apellido_materno")}
                 disabled={readonly}
               />
             </Grid>
@@ -64,8 +70,26 @@ const SubjectForm: React.FC<Props> = ({ subject, onChange, readonly }) => {
               <TextField
                 label="Cédula de Identidad"
                 fullWidth
-                value={subject.ci || ''}
-                onChange={handleChange('ci')}
+                value={subject.ci || ""}
+                onChange={handleChange("ci")}
+                disabled={readonly}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                label="Complemento"
+                fullWidth
+                value={subject.complemento || ""}
+                onChange={handleChange("complemento")}
+                disabled={readonly}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                label="Fecha Nacimiento"
+                fullWidth
+                value={subject.fecha_nacimiento || undefined}
+                onChange={handleChange("fecha_nacimiento")}
                 disabled={readonly}
               />
             </Grid>
@@ -75,8 +99,8 @@ const SubjectForm: React.FC<Props> = ({ subject, onChange, readonly }) => {
             <TextField
               label="Placa del Vehículo"
               fullWidth
-              value={subject.placa || ''}
-              onChange={handleChange('placa')}
+              value={subject.placa || ""}
+              onChange={handleChange("placa")}
               disabled={readonly}
             />
           </Grid>
@@ -86,4 +110,4 @@ const SubjectForm: React.FC<Props> = ({ subject, onChange, readonly }) => {
   );
 };
 
-export default SubjectForm;
+export default SujetoBusquedaForm;

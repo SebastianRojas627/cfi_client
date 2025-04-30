@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Box,
   Typography,
@@ -6,49 +6,62 @@ import {
   RadioGroup,
   FormControlLabel,
   Button,
-} from '@mui/material';
-import ServiceSelector from './ServicesSelector';
-import SubjectForm from './SubjectForm';
-import { Subject } from '../types/types';
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import ServiceSelector from "./ServicesSelector";
+import SubjectForm from "./SubjectForm";
+import { SistemasSolicitados, SujetoBusqueda, TipoSujeto } from "../api/types";
+import { mockInvestigators } from "../data/mock";
 
 const FreeSearchForm: React.FC = () => {
-  const [subjectType, setSubjectType] = useState<'persona' | 'vehiculo'>('persona');
+  const [subjectType, setSubjectType] = useState<TipoSujeto>(
+    TipoSujeto.PERSONA
+  );
 
-  const [services, setServices] = useState({
+  const [selectedInvestigador, setSelectedInvestigador] = useState("");
+
+  const [sistemas, setServices] = useState<SistemasSolicitados>({
     segip: false,
     sinarap: false,
     itv: false,
+    impuestos: false,
   });
 
-  const handleServiceChange = (key: keyof typeof services, value: boolean) => {
+  const handleServiceChange = (key: keyof typeof sistemas, value: boolean) => {
     setServices((prev) => ({ ...prev, [key]: value }));
   };
 
-  const [subject, setSubject] = useState<Subject>({
-    tipo: 'persona',
-    nombres: '',
-    apellido_paterno: '',
-    apellido_materno: '',
-    ci: '',
-    placa: '',
+  const [subject, setSubject] = useState<SujetoBusqueda>({
+    tipo: TipoSujeto.PERSONA,
+    nombres: "",
+    apellido_paterno: "",
+    apellido_materno: "",
+    ci: "",
+    placa: "",
+    complemento: "",
+    fecha_nacimiento: null,
   });
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const tipo = e.target.value as 'persona' | 'vehiculo';
-    setSubject((prev) => ({
+    const tipo = e.target.value as TipoSujeto;
+    setSubject(() => ({
       tipo,
-      nombres: '',
-      apellido_paterno: '',
-      apellido_materno: '',
-      ci: '',
-      placa: '',
+      nombres: "",
+      apellido_paterno: "",
+      apellido_materno: "",
+      ci: "",
+      placa: "",
+      complemento: "",
+      fecha_nacimiento: null,
     }));
     setSubjectType(tipo);
   };
 
   const handleSearch = () => {
-    // Implement API call to search here
-    console.log('Searching with:', { services, subject });
+    console.log("Searching with:", { sistemas, subject });
   };
 
   return (
@@ -61,7 +74,7 @@ const FreeSearchForm: React.FC = () => {
         Seleccione las fuentes de información que desea consultar:
       </Typography>
 
-      <ServiceSelector services={services} onChange={handleServiceChange} />
+      <ServiceSelector sistemas={sistemas} onChange={handleServiceChange} />
 
       <Typography variant="h6" sx={{ mt: 4 }}>
         De la siguiente persona o vehículo:
@@ -73,11 +86,37 @@ const FreeSearchForm: React.FC = () => {
         onChange={handleTypeChange}
         sx={{ mt: 1, mb: 3 }}
       >
-        <FormControlLabel value="persona" control={<Radio />} label="Persona" />
-        <FormControlLabel value="vehiculo" control={<Radio />} label="Vehículo" />
+        <FormControlLabel
+          value={TipoSujeto.PERSONA}
+          control={<Radio />}
+          label="Persona"
+        />
+        <FormControlLabel
+          value={TipoSujeto.VEHICULO}
+          control={<Radio />}
+          label="Vehículo"
+        />
       </RadioGroup>
 
       <SubjectForm subject={subject} onChange={setSubject} />
+
+      <Box sx={{ mt: 4 }}>
+        <FormControl fullWidth>
+          <InputLabel id="investigador-label">Investigador del CFI</InputLabel>
+          <Select
+            labelId="investigador-label"
+            value={selectedInvestigador}
+            label="Investigador del CFI"
+            onChange={(e) => setSelectedInvestigador(e.target.value)}
+          >
+            {mockInvestigators.map((inv) => (
+              <MenuItem key={inv.id} value={inv.name}>
+                {inv.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
 
       <Box display="flex" justifyContent="center" sx={{ mt: 4 }}>
         <Button variant="contained" color="primary" onClick={handleSearch}>

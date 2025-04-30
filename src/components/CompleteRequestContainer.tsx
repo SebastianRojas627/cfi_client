@@ -1,22 +1,9 @@
-// src/containers/CompleteRequestContainer.tsx
-
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import CompleteRequestForm from './CompleteRequestForm';
-
-// src/mock/mockPendingRequests.ts
-
-// src/mock/mockInvestigators.ts
-
-const mockInvestigators = [
-  {id: 1, name: 'TTE. CASTILLO'},
-  {id: 2, name: 'SGTO. MENDOZA'},
-  {id: 3, name: 'SGTO. FLORES'},
-  {id: 4, name: 'TTE. GUTIERREZ'},
-  {id: 5, name: 'SGTO. SANDOVAL'},
-];
-
+import { SistemasSolicitados, SujetoBusqueda, TipoSujeto } from '../api/types';
+import { mockInvestigators } from '../data/mock';
 
 const mockPendingRequests = [
   {
@@ -28,23 +15,28 @@ const mockPendingRequests = [
       segip: true,
       sinarap: true,
       itv: false,
+      impuestos: false,
     },
     sujetos: [
       {
-        tipo: 'persona',
+        tipo: TipoSujeto.PERSONA,
         nombres: 'JUAN',
         apellido_paterno: 'PEREZ',
         apellido_materno: 'LOPEZ',
         ci: '12345678',
         placa: '',
+        complemento: '',
+        fecha_nacimiento: null
       },
       {
-        tipo: 'vehiculo',
+        tipo: TipoSujeto.VEHICULO,
         nombres: '',
         apellido_paterno: '',
         apellido_materno: '',
         ci: '',
         placa: '1852PHD',
+        complemento: '',
+        fecha_nacimiento: null
       },
     ],
   },
@@ -57,15 +49,18 @@ const mockPendingRequests = [
       segip: true,
       sinarap: false,
       itv: true,
+      impuestos: false,
     },
     sujetos: [
       {
-        tipo: 'persona',
+        tipo: TipoSujeto.PERSONA,
         nombres: 'MARIA',
         apellido_paterno: 'GONZALES',
         apellido_materno: 'RAMIREZ',
         ci: '98765432',
         placa: '',
+        complemento: '',
+        fecha_nacimiento: null
       },
     ],
   },
@@ -78,15 +73,18 @@ const mockPendingRequests = [
       segip: false,
       sinarap: true,
       itv: true,
+      impuestos: false,
     },
     sujetos: [
       {
-        tipo: 'vehiculo',
+        tipo: TipoSujeto.VEHICULO,
         nombres: '',
         apellido_paterno: '',
         apellido_materno: '',
         ci: '',
         placa: '7291XYZ',
+        complemento: '',
+        fecha_nacimiento: null
       },
     ],
   },
@@ -94,12 +92,12 @@ const mockPendingRequests = [
 
 
 const CompleteRequestContainer: React.FC = () => {
-  const { requestId } = useParams(); // from route if accessed via button
+  const { requestId } = useParams();
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(requestId || null);
 
   const [caseNumber, setCaseNumber] = useState('');
-  const [services, setServices] = useState({ segip: false, sinarap: false, itv: false });
-  const [subjects, setSubjects] = useState<any[]>([]);
+  const [services, setServices] = useState<SistemasSolicitados>({ segip: false, sinarap: false, itv: false, impuestos: false });
+  const [subjects, setSubjects] = useState<SujetoBusqueda[]>([]);
   const [selectedInvestigator, setSelectedInvestigator] = useState('');
 
   useEffect(() => {
@@ -141,13 +139,13 @@ const CompleteRequestContainer: React.FC = () => {
 
       {selectedRequestId && (
         <CompleteRequestForm
-          caseNumber={caseNumber}
-          services={services}
-          subjects={subjects}
-          investigators={mockInvestigators}
-          selectedInvestigator={selectedInvestigator}
-          onInvestigatorChange={setSelectedInvestigator}
-          onCaseNumberChange={setCaseNumber}
+          numero_caso={caseNumber}
+          sistemas={services}
+          sujetos={subjects}
+          investigadores={mockInvestigators}
+          selectedInvestigador={selectedInvestigator}
+          onInvestigadorChange={setSelectedInvestigator}
+          onNumeroCasoChange={setCaseNumber}
         />
       )}
     </Box>

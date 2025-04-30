@@ -1,9 +1,9 @@
 import { Checkbox, FormControlLabel, Grid, Typography, Box } from '@mui/material';
-import { Services } from '../types/types';
+import { SistemasSolicitados } from '../api/types';
 
 interface Props {
-  services: Services;
-  onChange?: (key: keyof Services, value: boolean) => void;
+  sistemas: SistemasSolicitados;
+  onChange?: (key: keyof SistemasSolicitados, value: boolean) => void;
   readonly?: boolean;
 }
 
@@ -13,7 +13,8 @@ const serviceLabels = [
   { key: 'itv', label: 'ITV', numeral: 'III' }
 ];
 
-const ServiceSelector: React.FC<Props> = ({ services, onChange, readonly }) => {
+const ServiceSelector: React.FC<Props> = ({ sistemas, onChange, readonly }) => {
+
   return (
     <Grid container direction="column" alignItems="center" spacing={2} sx={{ mb: 4 }}>
       {serviceLabels.map(({ key, label, numeral }) => (
@@ -34,10 +35,10 @@ const ServiceSelector: React.FC<Props> = ({ services, onChange, readonly }) => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={services[key as keyof Services]}
+                  checked={sistemas[key as keyof SistemasSolicitados]}
                   disabled={readonly}
                   onChange={(e) =>
-                    onChange && onChange(key as keyof Services, e.target.checked)
+                    onChange && onChange(key as keyof SistemasSolicitados, e.target.checked)
                   }
                 />
               }

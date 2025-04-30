@@ -7,48 +7,34 @@ import {
   InputLabel,
   FormControl,
 } from '@mui/material';
-import ServiceSelector from './ServicesSelector';
 import SubjectForm from './SubjectForm';
+import { SistemasSolicitados, SujetoBusqueda } from '../api/types';
+import ServiceSelector from './ServicesSelector';
 
-interface Subject {
-  tipo: 'persona' | 'vehiculo';
-  nombres?: string;
-  apellido_paterno?: string;
-  apellido_materno?: string;
-  ci?: string;
-  placa?: string;
-}
-
-interface Services {
-  segip: boolean;
-  sinarap: boolean;
-  itv: boolean;
-}
-
-interface Investigator {
+interface Investigador {
   id: number;
   name: string;
 }
 
 // Props expected for this component
 interface CompleteRequestFormProps {
-  caseNumber: string;
-  services: Services;
-  subjects: Subject[];
-  investigators: Investigator[];
-  selectedInvestigator: string;
-  onInvestigatorChange: (value: string) => void;
-  onCaseNumberChange: (value: string) => void;
+  numero_caso: string;
+  sistemas: SistemasSolicitados;
+  sujetos: SujetoBusqueda[];
+  investigadores: Investigador[];
+  selectedInvestigador: string;
+  onInvestigadorChange: (value: string) => void;
+  onNumeroCasoChange: (value: string) => void;
 }
 
 const CompleteRequestForm: React.FC<CompleteRequestFormProps> = ({
-  caseNumber,
-  services,
-  subjects,
-  investigators,
-  selectedInvestigator,
-  onInvestigatorChange,
-  onCaseNumberChange,
+  numero_caso,
+  sistemas,
+  sujetos,
+  investigadores,
+  selectedInvestigador,
+  onInvestigadorChange,
+  onNumeroCasoChange,
 }) => {
   return (
     <Box>
@@ -60,8 +46,8 @@ const CompleteRequestForm: React.FC<CompleteRequestFormProps> = ({
       <TextField
         label="Número de Caso"
         fullWidth
-        value={caseNumber}
-        onChange={(e) => onCaseNumberChange(e.target.value)}
+        value={numero_caso}
+        onChange={(e) => onNumeroCasoChange(e.target.value)}
         sx={{ mb: 4 }}
       />
 
@@ -69,27 +55,27 @@ const CompleteRequestForm: React.FC<CompleteRequestFormProps> = ({
       <Typography variant="subtitle1" sx={{ mb: 1 }}>
         Servicios Solicitados:
       </Typography>
-      <ServiceSelector services={services} readonly />
+      <ServiceSelector sistemas={sistemas} readonly />
 
       {/* Subject Forms (read-only) */}
       <Typography variant="subtitle1" sx={{ mt: 4, mb: 2 }}>
         Sujetos Relacionados:
       </Typography>
-      {subjects.map((sujeto, idx) => (
+      {sujetos.map((sujeto, idx) => (
         <SubjectForm key={idx} subject={sujeto} readonly />
       ))}
 
-      {/* Investigator Dropdown */}
+      {/* Investigador Dropdown */}
       <Box sx={{ mt: 4 }}>
         <FormControl fullWidth>
           <InputLabel id="investigador-label">Investigador del CFI</InputLabel>
           <Select
             labelId="investigador-label"
-            value={selectedInvestigator}
+            value={selectedInvestigador}
             label="Investigador del CFI"
-            onChange={(e) => onInvestigatorChange(e.target.value)}
+            onChange={(e) => onInvestigadorChange(e.target.value)}
           >
-            {investigators.map((inv) => (
+            {investigadores.map((inv) => (
               <MenuItem key={inv.id} value={inv.name}>
                 {inv.name}
               </MenuItem>

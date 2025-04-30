@@ -1,4 +1,3 @@
-import "./App.css";
 import SearchView from "./components/SearchView";
 import { createTheme, ThemeProvider } from "@mui/material";
 import Layout from "./components/Layout";
