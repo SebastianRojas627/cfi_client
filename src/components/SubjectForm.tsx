@@ -30,7 +30,7 @@ const SujetoBusquedaForm: React.FC<Props> = ({
       px={2}
       py={2}
       mt={2}
-      sx={{ backgroundColor: "#f9f9f9" }}
+      sx={{ backgroundColor: readonly ? "#f9f9f9" : "#ffffff" }}
     >
       <Typography variant="subtitle1" gutterBottom>
         {isPersona ? "Datos de Persona" : "Datos de Vehículo"}

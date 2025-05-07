@@ -1,4 +1,5 @@
 export interface SolicitudInformacion {
+  numero_caso: number;
   delito: string;
   investigador: string;
   unidad_investigativa: string;

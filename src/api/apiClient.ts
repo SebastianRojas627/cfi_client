@@ -9,6 +9,14 @@ const searchClient = axios.create({
     }
 })
 
+export const solicitudesClient = axios.create({
+  baseURL: "http://localhost:5001",
+  timeout: 5000,
+  headers: {
+      "Content-Type": "application/json"
+  }
+})
+
 searchClient.interceptors.response.use(
     (response) => response,
     (error) => {

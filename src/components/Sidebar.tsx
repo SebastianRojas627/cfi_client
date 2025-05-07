@@ -21,14 +21,17 @@ import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
 import HistoryIcon from '@mui/icons-material/History';
 import PendingIcon from '@mui/icons-material/HourglassEmpty';
+import SendIcon from '@mui/icons-material/Send';
+import { Urls } from '../utils/routes';
 
 const drawerWidth = 240;
 
 const sidebarLinks = [
-  { text: 'Home', url: '/home', icon: <HomeIcon /> },
-  { text: 'Nueva Solicitud de Informacion', url: '/form', icon: <AddIcon /> },
-  { text: 'Solicitudes Pendientes', url: '/pending', icon: <PendingIcon /> },
-  { text: 'Historial de Solicitudes', url: '/history', icon: <HistoryIcon /> },
+  { text: 'Home', url: Urls.HOME, icon: <HomeIcon /> },
+  { text: 'Nueva Solicitud de Informacion', url: Urls.FORM, icon: <AddIcon /> },
+  { text: 'Solicitudes Pendientes', url: Urls.PENDING, icon: <PendingIcon /> },
+  { text: 'Historial de Solicitudes', url: Urls.HISTORY, icon: <HistoryIcon /> },
+  { text: 'Historial de Peticiones', url: Urls.REQUESTS, icon: <SendIcon /> },
 ];
 
 const openedMixin = (theme: Theme): CSSObject => ({
