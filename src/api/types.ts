@@ -1,4 +1,5 @@
 export interface SolicitudInformacion {
+  solicitud_informacion_id: string;
   numero_caso: number;
   delito: string;
   investigador: string;
@@ -6,6 +7,8 @@ export interface SolicitudInformacion {
   numero_caso_unidad: string;
   sujetos: SujetoBusqueda[];
   sistemas: SistemasSolicitados;
+  fecha_solicitud: Date;
+  completado: boolean;
 }
 
 export interface SistemasSolicitados {

@@ -11,46 +11,49 @@ import {
   Paper,
   IconButton,
   TablePagination,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DescriptionIcon from "@mui/icons-material/Description";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import CloseIcon from "@mui/icons-material/Close";
 import { getSolicitudes } from "../api/solicitudService";
 import { SolicitudInformacion } from "../api/types";
-
-const mockData = Array.from({ length: 35 }, (_, i) => ({
-  solicitud_informacion_id: `uuid-${i + 1}`,
-  numero_caso: 1000 + i,
-  nombres: `Nombre${i}`,
-  apellido_paterno: `ApellidoP${i}`,
-  apellido_materno: `ApellidoM${i}`,
-  ci: `123456${i}`,
-  complemento: null,
-  fecha_nacimiento: "1990-01-01",
-  placa: `XYZ-${i}`,
-  delito: "Robo",
-  investigador: `Invest ${i}`,
-  unidad_investigativa: `Unidad ${i % 3}`,
-  tipo: i % 2 === 0 ? "Persona" : "Vehículo",
-  numero_caso_unidad: `UC-${i}`,
-  fecha_solicitud: "2025-04-10",
-  segip: true,
-  sinarap: false,
-  itv: true,
-  impuestos: false,
-  completado: i % 3 === 0,
-}));
+import SolicitudDetail from "../components/SolicitudDetail";
 
 const RequestHistory = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [responseRows, setResponseRows ] = useState<SolicitudInformacion[]>([])
+  const [total, setTotal] = useState(0);
+  const [responseRows, setResponseRows] = useState<SolicitudInformacion[]>([]);
+  const [selectedSolicitudId, setSelectedSolicitudId] = useState<string | null>(
+    null
+  );
+  const [detailOpen, setDetailOpen] = useState(false);
 
-  const fetchSolicitudes = async () => {
+  const handleOpenDetail = (id: string) => {
+    setSelectedSolicitudId(id);
+    setDetailOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setDetailOpen(false);
+    setSelectedSolicitudId(null);
+  };
+
+  const fetchSolicitudes = async (
+    newPage: number = page,
+    newRowsPerPage: number = rowsPerPage
+  ) => {
+    const offset: number = newPage * newRowsPerPage;
+    const limit: number = newRowsPerPage;
+
     try {
-      const response = await getSolicitudes();
-      console.log(response);
-      setResponseRows(response)
+      const response = await getSolicitudes(offset, limit);
+      setTotal(response.total);
+      setResponseRows(response.data);
     } catch (error) {
       console.error("Error fetching user info:", error);
     }
@@ -60,21 +63,19 @@ const RequestHistory = () => {
     fetchSolicitudes();
   }, []);
 
-  const handleChangePage = (_: any, newPage: number) => {
+  const handleChangePage = async (_: any, newPage: number) => {
     setPage(newPage);
+    await fetchSolicitudes(newPage);
   };
 
-  const handleChangeRowsPerPage = (
+  const handleChangeRowsPerPage = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    const newRows = parseInt(event.target.value, 10);
+    setRowsPerPage(newRows);
     setPage(0);
+    await fetchSolicitudes(0, newRows);
   };
-
-  const visibleRows = mockData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
 
   return (
     <Box p={3}>
@@ -97,17 +98,22 @@ const RequestHistory = () => {
             </TableHead>
             <TableBody>
               {responseRows.map((row) => (
-                <TableRow key={row.numero_caso}>
+                <TableRow key={row.solicitud_informacion_id}>
                   <TableCell>{row.numero_caso}</TableCell>
-                  <TableCell>{row.ci}</TableCell>
+                  <TableCell>{row.unidad_investigativa}</TableCell>
                   <TableCell>{row.delito}</TableCell>
                   <TableCell>{row.investigador}</TableCell>
-                  <TableCell>{row.fecha_solicitud}</TableCell>
+                  <TableCell>{String(row.fecha_solicitud)}</TableCell>
                   <TableCell>
                     {row.completado ? "Completado" : "Pendiente"}
                   </TableCell>
                   <TableCell align="center">
-                    <IconButton title="Ver Solicitud">
+                    <IconButton
+                      title="Ver Solicitud"
+                      onClick={() =>
+                        handleOpenDetail(row.solicitud_informacion_id)
+                      }
+                    >
                       <VisibilityIcon />
                     </IconButton>
                     <IconButton
@@ -143,13 +149,34 @@ const RequestHistory = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 20]}
           component="div"
-          count={mockData.length}
+          count={total}
           rowsPerPage={rowsPerPage}
           page={page}
           labelRowsPerPage="Filas por página"
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
+        <Dialog
+          open={detailOpen}
+          onClose={handleCloseDetail}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            Detalles de Solicitud
+            <IconButton
+              onClick={handleCloseDetail}
+              sx={{ position: "absolute", right: 8, top: 8 }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            {selectedSolicitudId && (
+              <SolicitudDetail solicitudId={selectedSolicitudId} />
+            )}
+          </DialogContent>
+        </Dialog>
       </Paper>
     </Box>
   );
