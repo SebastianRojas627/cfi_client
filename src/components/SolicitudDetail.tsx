@@ -31,7 +31,6 @@ const SolicitudDetail: React.FC<Props> = ({ solicitudId }) => {
         setLoading(true);
         const data = await getSolicitudById(solicitudId);
         setSolicitud(data);
-        console.log(data);
       } catch (err: any) {
         setError("No se pudo cargar la solicitud.");
         console.error(err);
