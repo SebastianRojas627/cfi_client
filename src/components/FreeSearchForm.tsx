@@ -27,7 +27,7 @@ const FreeSearchForm: React.FC = () => {
     segip: false,
     sinarap: false,
     itv: false,
-    impuestos: false,
+    anh: false,
   });
 
   const handleServiceChange = (key: keyof typeof sistemas, value: boolean) => {
@@ -42,7 +42,9 @@ const FreeSearchForm: React.FC = () => {
     ci: "",
     placa: "",
     complemento: "",
-    fecha_nacimiento: null,
+    carguio_combustible: false,
+    fechafin: null,
+    fechaini: null,
   });
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +58,9 @@ const FreeSearchForm: React.FC = () => {
       placa: "",
       complemento: "",
       fecha_nacimiento: null,
+      carguio_combustible: false,
+      fechafin: null,
+      fechaini: null,
     }));
     setSubjectType(tipo);
   };
@@ -66,17 +71,17 @@ const FreeSearchForm: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
+      <Typography color='text.primary' variant="h5" gutterBottom sx={{ mb: 2 }}>
         Búsqueda Libre
       </Typography>
 
-      <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+      <Typography color='text.primary' variant="h6" gutterBottom sx={{ mb: 2 }}>
         Seleccione las fuentes de información que desea consultar:
       </Typography>
 
       <ServiceSelector sistemas={sistemas} onChange={handleServiceChange} />
 
-      <Typography variant="h6" sx={{ mt: 4 }}>
+      <Typography color='text.primary' variant="h6" sx={{ mt: 4 }}>
         De la siguiente persona o vehículo:
       </Typography>
 

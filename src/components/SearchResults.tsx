@@ -12,10 +12,10 @@ const SearchResults: React.FC<Props> = ({ results }) => {
       {Object.entries(results).map(([system, data]) => (
         <Accordion key={system}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>{system.toUpperCase()}</Typography>
+            <Typography color='text.primary'>{system.toUpperCase()}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography component="pre">{JSON.stringify(data, null, 2)}</Typography>
+            <Typography color='text.primary' component="pre">{JSON.stringify(data, null, 2)}</Typography>
           </AccordionDetails>
         </Accordion>
       ))}

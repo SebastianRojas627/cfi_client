@@ -10,7 +10,8 @@ interface Props {
 const serviceLabels = [
   { key: 'segip', label: 'SEGIP', numeral: 'I' },
   { key: 'sinarap', label: 'SINARAP', numeral: 'II' },
-  { key: 'itv', label: 'ITV', numeral: 'III' }
+  { key: 'itv', label: 'ITV', numeral: 'III' },
+  { key: 'anh', label: 'ANH', numeral: 'IV' }
 ];
 
 const ServiceSelector: React.FC<Props> = ({ sistemas, onChange, readonly }) => {
@@ -29,7 +30,7 @@ const ServiceSelector: React.FC<Props> = ({ sistemas, onChange, readonly }) => {
             py={1}
             sx={{ backgroundColor: '#f9f9f9' }}
           >
-            <Typography variant="subtitle1" sx={{ width: 30, mr: 1 }}>
+            <Typography color='text.primary' variant="subtitle1" sx={{ width: 30, mr: 1 }}>
               {numeral}.
             </Typography>
             <FormControlLabel
@@ -42,7 +43,7 @@ const ServiceSelector: React.FC<Props> = ({ sistemas, onChange, readonly }) => {
                   }
                 />
               }
-              label={<Typography variant="subtitle1">{label}</Typography>}
+              label={<Typography color='text.primary' variant="subtitle1">{label}</Typography>}
               sx={{ marginLeft: 0 }}
             />
           </Box>

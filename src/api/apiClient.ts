@@ -1,22 +1,14 @@
-import axios from 'axios';
-import { handleApiError } from '../utils/errorHandler';
-
-const searchClient = axios.create({
-    baseURL: "http://localhost:5004",
-    timeout: 5000,
-    headers: {
-        "Content-Type": "application/json"
-    }
-})
+import axios from "axios";
 
 export const solicitudesClient = axios.create({
   baseURL: "http://localhost:5001",
-  timeout: 5000,
+  timeout: 20000,
   headers: {
-      "Content-Type": "application/json"
-  }
-})
+    "Content-Type": "application/json",
+  },
+});
 
+/*
 searchClient.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -25,5 +17,4 @@ searchClient.interceptors.response.use(
       return Promise.reject(errorMessage);
     }
   );
-  
-  export default searchClient;
+  */

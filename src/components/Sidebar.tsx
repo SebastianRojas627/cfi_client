@@ -1,64 +1,81 @@
-import * as React from 'react';
-import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import { Avatar } from '@mui/material';
-import { useNavigate } from 'react-router';
-import HomeIcon from '@mui/icons-material/Home';
-import AddIcon from '@mui/icons-material/Add';
-import HistoryIcon from '@mui/icons-material/History';
-import PendingIcon from '@mui/icons-material/HourglassEmpty';
-import SendIcon from '@mui/icons-material/Send';
-import { Urls } from '../utils/routes';
+import { styled, Theme, CSSObject, useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import MuiDrawer from "@mui/material/Drawer";
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import List from "@mui/material/List";
+import CssBaseline from "@mui/material/CssBaseline";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import { useNavigate } from "react-router";
+import HomeIcon from "@mui/icons-material/Home";
+import PendingIcon from "@mui/icons-material/HourglassEmpty";
+import { Urls } from "../utils/routes";
+import { useAuth } from "../hooks/useAuth";
+import { useEffect, useState } from "react";
+import { Role } from "../context/auth-types";
+import UserAvatarMenu from "./AvatarMenu";
+import SearchIcon from "@mui/icons-material/Search";
+import IncompleteCircleIcon from "@mui/icons-material/IncompleteCircle";
+import TaskIcon from "@mui/icons-material/Task";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { useLocation } from "react-router-dom";
 
 const drawerWidth = 240;
 
 const sidebarLinks = [
-  { text: 'Home', url: Urls.HOME, icon: <HomeIcon /> },
-  { text: 'Nueva Solicitud de Informacion', url: Urls.FORM, icon: <AddIcon /> },
-  { text: 'Solicitudes Pendientes', url: Urls.PENDING, icon: <PendingIcon /> },
-  { text: 'Historial de Solicitudes', url: Urls.HISTORY, icon: <HistoryIcon /> },
-  { text: 'Historial de Peticiones', url: Urls.REQUESTS, icon: <SendIcon /> },
+  { text: "Home", url: Urls.HOME, icon: <HomeIcon /> },
+  {
+    text: "Completer Solicitud Pendiente",
+    url: Urls.COMPLETE,
+    icon: <IncompleteCircleIcon />,
+  },
+  { text: "Realizar Busqueda Libre", url: Urls.FREE, icon: <SearchIcon /> },
+  {
+    text: "Historial de Solicitudes",
+    url: Urls.HISTORY,
+    icon: <PendingIcon />,
+  },
+ //  {
+ //    text: "Peticiones Externas",
+ //    url: Urls.REQUESTS,
+ //    icon: <ArrowOutwardIcon />,
+ //  },
+   { text: "Reportes", url: Urls.REPORTS, icon: <TaskIcon /> },
 ];
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
-  transition: theme.transitions.create('width', {
+  transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
   }),
-  overflowX: 'hidden',
+  overflowX: "hidden",
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create('width', {
+  transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  overflowX: 'hidden',
+  overflowX: "hidden",
   width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up('sm')]: {
+  [theme.breakpoints.up("sm")]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
 }));
@@ -68,10 +85,10 @@ interface AppBarProps extends MuiAppBarProps {
 }
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
+  shouldForwardProp: (prop) => prop !== "open",
 })<AppBarProps>(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
+  transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
@@ -81,7 +98,7 @@ const AppBar = styled(MuiAppBar, {
       style: {
         marginLeft: drawerWidth,
         width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
+        transition: theme.transitions.create(["width", "margin"], {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.enteringScreen,
         }),
@@ -90,36 +107,37 @@ const AppBar = styled(MuiAppBar, {
   ],
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    variants: [
-      {
-        props: ({ open }) => open,
-        style: {
-          ...openedMixin(theme),
-          '& .MuiDrawer-paper': openedMixin(theme),
-        },
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  boxSizing: "border-box",
+  variants: [
+    {
+      props: ({ open }) => open,
+      style: {
+        ...openedMixin(theme),
+        "& .MuiDrawer-paper": openedMixin(theme),
       },
-      {
-        props: ({ open }) => !open,
-        style: {
-          ...closedMixin(theme),
-          '& .MuiDrawer-paper': closedMixin(theme),
-        },
+    },
+    {
+      props: ({ open }) => !open,
+      style: {
+        ...closedMixin(theme),
+        "& .MuiDrawer-paper": closedMixin(theme),
       },
-    ],
-  }),
-);
+    },
+  ],
+}));
 
 export default function Sidebar() {
-
   const navigate = useNavigate();
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(true);
+  const [userName, setUserName] = useState("");
+  const [role, setRole] = useState<Role[]>([]);
+  const [photo, setPhoto] = useState("");
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -129,64 +147,160 @@ export default function Sidebar() {
     setOpen(false);
   };
 
+  const { user } = useAuth();
+  const location = useLocation();
+  const isSettingsActive = location.pathname === "/settings";
+
+  useEffect(() => {
+    if (user) {
+      setUserName(user.userName);
+      setRole(user.roles);
+      setPhoto(user.imageUser);
+    }
+  }, [user]);
+
+  const theme = useTheme();
+
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <AppBar position="fixed" open={open} elevation={0}>
         <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={open ? handleDrawerClose : handleDrawerOpen}
             edge="start"
-            sx={[
-              {
-                marginRight: 5,
-              },
-              open && { display: 'none' },
-            ]}
+            sx={{ marginRight: 2 }}
           >
-            <MenuIcon />
+            {open ? <ChevronLeftIcon /> : <MenuIcon />}
           </IconButton>
-          <Typography variant="h6" noWrap sx={
-            { flexGrow: 1 }
-          }>
-            Mini variant drawer
+          <Box
+            component="img"
+            src="\Nexus_30171.png"
+            alt="Nexus Logo"
+            sx={{
+              height: 40,
+              width: "auto",
+              mr: 2,
+            }}
+          />
+          <Typography
+            color="primary.contratText"
+            variant="h6"
+            noWrap
+            sx={{ flexGrow: 1 }}
+          >
+            Sistema NEXUS - CFI
           </Typography>
-          <Typography variant="h6">
-            User
-          </Typography>
-          <Avatar sx={
-            { ml: 2 }
-          } src='/bald.jpg'/>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
+            <Typography color="text.contratText" variant="h6">
+              {userName}
+            </Typography>
+            <Box
+              sx={{
+                mt: 0.5,
+                px: 1.2,
+                py: 0.3,
+                backgroundColor: "grey.800",
+                color: "common.white",
+                fontSize: "0.75rem",
+                borderRadius: "4px",
+                textTransform: "uppercase",
+                letterSpacing: 0.5,
+              }}
+            >
+              {role[0]?.name}
+            </Box>
+          </Box>
+          <UserAvatarMenu photo={photo} />
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
+        <DrawerHeader sx={{ backgroundColor: theme.palette.primary.main }}>
           <Typography
-              variant="h6"
-              component="h3"
-              sx={{ p: 2, textAlign: 'left', whiteSpace: 'nowrap' }}
-              >
-            Menu
+            color="#ffffff"
+            variant="h6"
+            component="h3"
+            sx={{
+              p: 2,
+              textAlign: "center",
+              whiteSpace: "nowrap",
+              width: "100%",
+            }}
+          >
+            <strong>MENU NEXUS</strong>
           </Typography>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
         </DrawerHeader>
         <Divider />
-          <List>
-            {sidebarLinks.map((item, index) => (
-              <ListItemButton key={index} onClick={() => navigate(item.url)}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} sx={ open ? {
-                    whiteSpace: 'normal',
-                    wordWrap: 'break-word',
-                  } : {}} />
-              </ListItemButton>
-            ))}
-          </List>
-        <Divider />
+        <List>
+          {sidebarLinks.map((item, index) => {
+            const isActive = location.pathname === item.url;
+
+            return (
+              <Box key={index}>
+                <ListItemButton
+                  onClick={() => navigate(item.url)}
+                  sx={{
+                    alignItems: "center",
+                    backgroundColor: isActive ? "grey.300" : "inherit",
+                    color: "text.primary",
+                    "&:hover": {
+                      backgroundColor: isActive ? "grey.300" : "grey.200",
+                    },
+                    borderRadius: 1,
+                  }}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText
+                    primary={item.text}
+                    sx={
+                      open
+                        ? {
+                            whiteSpace: "normal",
+                            wordWrap: "break-word",
+                          }
+                        : {}
+                    }
+                  />
+                </ListItemButton>
+                <Divider sx={{ my: 1 }} />
+              </Box>
+            );
+          })}
+        </List>
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            width: "100%",
+            pb: 1,
+          }}
+        >
+          <Divider />
+          <ListItemButton
+            onClick={() => navigate("/settings")}
+            sx={{
+              borderRadius: 1,
+              backgroundColor: isSettingsActive ? "grey.300" : "inherit",
+              "&:hover": {
+                backgroundColor: isSettingsActive ? "grey.300" : "grey.100",
+              },
+            }}
+          >
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Configuración" />
+          </ListItemButton>
+        </Box>
       </Drawer>
     </Box>
   );

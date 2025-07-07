@@ -1,4 +1,4 @@
-import { Box, Container, Toolbar } from "@mui/material";
+import { Box, Container, Toolbar, useTheme } from "@mui/material";
 import Sidebar from "./Sidebar";
 
 interface LayoutProps {
@@ -6,10 +6,18 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
+
+  const theme = useTheme();
+  
   return (
     <Box sx={{ display: "flex" }}>
       <Sidebar />
-      <Container>
+      <Container
+        sx={{
+          backgroundColor: theme.palette.background.default,
+          minHeight: "100vh",
+        }}
+      >
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Toolbar /> {}
           {children}

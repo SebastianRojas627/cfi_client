@@ -19,24 +19,26 @@ import {
   Button,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import AssignmentIcon from "@mui/icons-material/Assignment";
 import CloseIcon from "@mui/icons-material/Close";
-import { getResultadosSolicitudCompleta, getSolicitudes } from "../api/solicitudService";
-import { SolicitudInformacion } from "../api/types";
+import {
+  getReportes,
+  getResultadosSolicitudCompleta,
+} from "../api/solicitudService";
+import { Reporte, TableRequest } from "../api/types";
 import SolicitudDetail from "../components/SolicitudDetail";
 import { useNavigate } from "react-router";
 
-const RequestHistory = () => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+const DocumentReport = () => {
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [total, setTotal] = useState(0);
-  const [responseRows, setResponseRows] = useState<SolicitudInformacion[]>([]);
+  const [responseRows, setResponseRows] = useState<Reporte[]>([]);
   const [selectedSolicitudId, setSelectedSolicitudId] = useState<string | null>(
     null
   );
   const [detailOpen, setDetailOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [dialogCaso, setDialogCaso] = useState(0)
+  const [dialogCaso, setDialogCaso] = useState(0);
   const navigate = useNavigate();
 
   const handleOpenDetail = (id: string) => {
@@ -49,29 +51,35 @@ const RequestHistory = () => {
     setSelectedSolicitudId(null);
   };
 
-  const fetchSolicitudes = async (
-    newPage: number = page,
-    newRowsPerPage: number = rowsPerPage
-  ) => {
-    const offset: number = newPage * newRowsPerPage;
-    const limit: number = newRowsPerPage;
-
+  const fetchSolicitudes = async () => {
     try {
-      const response = await getSolicitudes(offset, limit);
-      setTotal(response.total);
+      const query: TableRequest = {
+        pageSize: rowsPerPage,
+        page,
+        sortBy: null,
+        order: null,
+        usuario: null,
+        solicitud_informacion_id: null,
+      };
+      const response = await getReportes(query);
+      console.log(response);
+      setTotal(response.meta.total);
       setResponseRows(response.data);
     } catch (error) {
       console.error("Error fetching user info:", error);
     }
   };
 
-  useEffect(() => {
-    fetchSolicitudes();
-  }, []);
+  useEffect(
+    () => {
+      fetchSolicitudes();
+    },
+    [] // [solicitud_informacion_id] crear estados para las columnas que pueden ser filtradas
+  );
 
   const handleChangePage = async (_: any, newPage: number) => {
     setPage(newPage);
-    await fetchSolicitudes(newPage);
+    await fetchSolicitudes();
   };
 
   const handleChangeRowsPerPage = async (
@@ -80,24 +88,19 @@ const RequestHistory = () => {
     const newRows = parseInt(event.target.value, 10);
     setRowsPerPage(newRows);
     setPage(0);
-    await fetchSolicitudes(0, newRows);
+    await fetchSolicitudes();
   };
 
   const handleGetResults = async () => {
     setConfirmOpen(true);
-    const data = await getResultadosSolicitudCompleta(dialogCaso)
-    const { solicitud_informacion_id, ...results} = data;
+    const data = await getResultadosSolicitudCompleta(dialogCaso);
+    const { solicitud_informacion_id, ...results } = data;
     navigate(`/results/${solicitud_informacion_id}`, { state: { results } });
   };
 
   const handleCancel = () => {
     setConfirmOpen(false);
-    setDialogCaso(0)
-  };
-
-  const handleVerResultados = (numero_caso: number) => {
-    setConfirmOpen(true)
-    setDialogCaso(numero_caso)
+    setDialogCaso(0);
   };
 
   return (
@@ -110,26 +113,24 @@ const RequestHistory = () => {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Orden</TableCell>
                 <TableCell>Numero de Caso</TableCell>
-                <TableCell>Unidad Investigativa</TableCell>
-                <TableCell>Delito</TableCell>
-                <TableCell>Investigador</TableCell>
+                <TableCell>Usuario Solicitante</TableCell>
+                <TableCell>Numero de Copia</TableCell>
+                <TableCell>Justificacion</TableCell>
                 <TableCell>Fecha Solicitud</TableCell>
-                <TableCell>Estado</TableCell>
                 <TableCell align="center">Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {responseRows.map((row) => (
-                <TableRow key={row.solicitud_informacion_id}>
-                  <TableCell>{row.numero_caso}</TableCell>
-                  <TableCell>{row.unidad_investigativa}</TableCell>
-                  <TableCell>{row.delito}</TableCell>
-                  <TableCell>{row.investigador}</TableCell>
-                  <TableCell>{new Date(row.fecha_solicitud).toISOString().split('T')[0]}</TableCell>
-                  <TableCell>
-                    {row.completado ? "Completado" : "Pendiente"}
-                  </TableCell>
+                <TableRow key={row.rowNumber}>
+                  <TableCell>{row.rowNumber}</TableCell>
+                  <TableCell>{row.solicitud_informacion.numero_caso}</TableCell>
+                  <TableCell>{row.usuario_id}</TableCell>
+                  <TableCell>{row.numero_copia}</TableCell>
+                  <TableCell>{row.justificacion}</TableCell>
+                  <TableCell>{new Date(row.fecha_generacion).toISOString().split('T')[0]}</TableCell>
                   <TableCell align="center">
                     <IconButton
                       title="Ver Solicitud"
@@ -139,14 +140,6 @@ const RequestHistory = () => {
                     >
                       <VisibilityIcon />
                     </IconButton>
-                    {row.completado && (
-                      <IconButton
-                        title="Ver Resultados"
-                        onClick={() => handleVerResultados(row.numero_caso)}
-                      >
-                        <AssignmentIcon />
-                      </IconButton>
-                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -189,8 +182,7 @@ const RequestHistory = () => {
         <DialogTitle>Confirmar búsqueda</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            ¿Está seguro de que desea ver los resultados del caso #{dialogCaso}
-            ?
+            ¿Está seguro de que desea ver los resultados del caso #{dialogCaso}?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -204,4 +196,4 @@ const RequestHistory = () => {
   );
 };
 
-export default RequestHistory;
+export default DocumentReport;

@@ -1,7 +1,11 @@
 export enum Urls {
-    FORM = '/form',
+    COMPLETE = '/complete',
+    FREE = '/free',
     HISTORY = '/history',
     PENDING = '/pending',
     HOME = '/home',
-    REQUESTS = '/requests'
+    REQUESTS = '/requests',
+    RESULTS = '/results',
+    SETTINGS = '/settings',
+    REPORTS = '/reportes'
 }

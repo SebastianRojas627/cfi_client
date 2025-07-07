@@ -1,151 +1,129 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
-import { useParams } from 'react-router-dom';
-import CompleteRequestForm from './CompleteRequestForm';
-import { SistemasSolicitados, SujetoBusqueda, TipoSujeto } from '../api/types';
-import { mockInvestigators } from '../data/mock';
-
-const mockPendingRequests = [
-  {
-    id: 'req-001',
-    numero_caso: 4321,
-    investigador: 'Sgto. Rodríguez',
-    unidad: 'Unidad Antinarcóticos',
-    sistemas: {
-      segip: true,
-      sinarap: true,
-      itv: false,
-      impuestos: false,
-    },
-    sujetos: [
-      {
-        tipo: TipoSujeto.PERSONA,
-        nombres: 'JUAN',
-        apellido_paterno: 'PEREZ',
-        apellido_materno: 'LOPEZ',
-        ci: '12345678',
-        placa: '',
-        complemento: '',
-        fecha_nacimiento: null
-      },
-      {
-        tipo: TipoSujeto.VEHICULO,
-        nombres: '',
-        apellido_paterno: '',
-        apellido_materno: '',
-        ci: '',
-        placa: '1852PHD',
-        complemento: '',
-        fecha_nacimiento: null
-      },
-    ],
-  },
-  {
-    id: 'req-002',
-    numero_caso: 8765,
-    investigador: 'Tte. Quispe',
-    unidad: 'Unidad de Trata y Tráfico',
-    sistemas: {
-      segip: true,
-      sinarap: false,
-      itv: true,
-      impuestos: false,
-    },
-    sujetos: [
-      {
-        tipo: TipoSujeto.PERSONA,
-        nombres: 'MARIA',
-        apellido_paterno: 'GONZALES',
-        apellido_materno: 'RAMIREZ',
-        ci: '98765432',
-        placa: '',
-        complemento: '',
-        fecha_nacimiento: null
-      },
-    ],
-  },
-  {
-    id: 'req-003',
-    numero_caso: 1023,
-    investigador: 'Sgto. Vargas',
-    unidad: 'Unidad de Robo de Vehículos',
-    sistemas: {
-      segip: false,
-      sinarap: true,
-      itv: true,
-      impuestos: false,
-    },
-    sujetos: [
-      {
-        tipo: TipoSujeto.VEHICULO,
-        nombres: '',
-        apellido_paterno: '',
-        apellido_materno: '',
-        ci: '',
-        placa: '7291XYZ',
-        complemento: '',
-        fecha_nacimiento: null
-      },
-    ],
-  },
-];
-
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Typography,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  CircularProgress,
+} from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
+import CompleteRequestForm from "./CompleteRequestForm";
+import {
+  SistemasSolicitados,
+  SolicitudInformacion,
+  SujetoBusqueda,
+} from "../api/types";
+import {
+  getSolicitudById,
+  getPendingSolicitudes,
+} from "../api/solicitudService";
 
 const CompleteRequestContainer: React.FC = () => {
-  const { requestId } = useParams();
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(requestId || null);
+  const { solicitudId } = useParams();
+  const [solicitudSeleccionadaId, setSolicitudSeleccionadaId] = useState<
+    string | null
+  >(solicitudId || null);
 
-  const [caseNumber, setCaseNumber] = useState('');
-  const [services, setServices] = useState<SistemasSolicitados>({ segip: false, sinarap: false, itv: false, impuestos: false });
-  const [subjects, setSubjects] = useState<SujetoBusqueda[]>([]);
-  const [selectedInvestigator, setSelectedInvestigator] = useState('');
+  const [numero_caso, setCaseNumber] = useState(0);
+  const [servicios, setServicios] = useState<SistemasSolicitados>({
+    segip: false,
+    sinarap: false,
+    itv: false,
+    anh: false,
+  });
+  const [sujetos, setSujetos] = useState<SujetoBusqueda[]>([]);
+  const [solicitudes, setSolicitudes] = useState<SolicitudInformacion[]>([]);
+  const [investigador, setInvestigador] = useState("");
+  const [delito, setDelito] = useState("");
+  const [unidad_investigativa, setUnidadInvestigativa] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (selectedRequestId) {
-      const request = mockPendingRequests.find((r) => r.id === selectedRequestId);
-      if (request) {
-        setCaseNumber(request.numero_caso.toString());
-        setServices(request.sistemas);
-        setSubjects(request.sujetos);
-        setSelectedInvestigator('');
+    const fetchSolicitudes = async () => {
+      try {
+        const data = await getPendingSolicitudes();
+        setSolicitudes(data);
+      } catch (err) {
+        console.error("Error fetching pending solicitudes:", err);
       }
-    }
-  }, [selectedRequestId]);
+    };
+
+    fetchSolicitudes();
+  }, [solicitudId]);
+
+  useEffect(() => {
+    const fetchSelectedSolicitud = async () => {
+      if (!solicitudSeleccionadaId) return;
+
+      try {
+        setLoading(true);
+        const solicitud = await getSolicitudById(solicitudSeleccionadaId);
+        setCaseNumber(solicitud.numero_caso.toString());
+        setServicios(solicitud.sistemas);
+        setSujetos(solicitud.sujetos);
+        setInvestigador(solicitud.investigador);
+        setDelito(solicitud.delito);
+        setUnidadInvestigativa(solicitud.unidad_investigativa);
+      } catch (err) {
+        console.error("Error fetching solicitud by ID:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSelectedSolicitud();
+  }, [solicitudSeleccionadaId]);
+
+  const handleSolicitudChange = (newSolicitudId: string) => {
+    setSolicitudSeleccionadaId(newSolicitudId);
+    navigate(`/complete/${newSolicitudId}`);
+  };
 
   return (
     <Box>
-      {!requestId && (
-        <>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Seleccione una solicitud pendiente:
-          </Typography>
-          <FormControl fullWidth sx={{ mb: 4 }}>
-            <InputLabel id="select-request-label">Solicitud</InputLabel>
-            <Select
-              labelId="select-request-label"
-              value={selectedRequestId || ''}
-              label="Solicitud"
-              onChange={(e) => setSelectedRequestId(e.target.value)}
-            >
-              {mockPendingRequests.map((req) => (
-                <MenuItem key={req.id} value={req.id}>
-                  {`Caso ${req.numero_caso} - ${req.investigador} (${req.unidad})`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </>
+      <>
+        <Typography color='text.primary' variant="h6" sx={{ mb: 2 }}>
+          Seleccione una solicitud pendiente:
+        </Typography>
+        <FormControl fullWidth sx={{ mb: 4 }}>
+          <InputLabel id="select-request-label">Solicitud</InputLabel>
+          <Select
+            labelId="select-request-label"
+            value={solicitudSeleccionadaId || ""}
+            label="Solicitud"
+            onChange={(e) => handleSolicitudChange(e.target.value)}
+          >
+            {solicitudes.map((req) => (
+              <MenuItem
+                key={req.solicitud_informacion_id}
+                value={req.solicitud_informacion_id}
+              >
+                {`Caso ${req.numero_caso} - ${req.investigador} (${req.unidad_investigativa})`}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </>
+
+      {solicitudSeleccionadaId && loading && (
+        <Box sx={{ mt: 4 }}>
+          <CircularProgress />
+        </Box>
       )}
 
-      {selectedRequestId && (
+      {solicitudSeleccionadaId && !loading && (
         <CompleteRequestForm
-          numero_caso={caseNumber}
-          sistemas={services}
-          sujetos={subjects}
-          investigadores={mockInvestigators}
-          selectedInvestigador={selectedInvestigator}
-          onInvestigadorChange={setSelectedInvestigator}
-          onNumeroCasoChange={setCaseNumber}
+          solicitud_id={solicitudId!}
+          numero_caso={numero_caso}
+          sistemas={servicios}
+          sujetos={sujetos}
+          investigador={investigador}
+          delito={delito}
+          unidad_investigativa={unidad_investigativa}
         />
       )}
     </Box>

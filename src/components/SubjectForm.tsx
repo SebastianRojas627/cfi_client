@@ -84,15 +84,6 @@ const SujetoBusquedaForm: React.FC<Props> = ({
                 disabled={readonly}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                label="Fecha Nacimiento"
-                fullWidth
-                value={subject.fecha_nacimiento || undefined}
-                onChange={handleChange("fecha_nacimiento")}
-                disabled={readonly}
-              />
-            </Grid>
           </>
         ) : (
           <Grid size={{ xs: 12 }}>
