@@ -41,33 +41,6 @@ const SujetoBusquedaForm: React.FC<Props> = ({
           <>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
-                label="Nombres"
-                fullWidth
-                value={subject.nombres || ""}
-                onChange={handleChange("nombres")}
-                disabled={readonly}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                label="Apellido Paterno"
-                fullWidth
-                value={subject.apellido_paterno || ""}
-                onChange={handleChange("apellido_paterno")}
-                disabled={readonly}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                label="Apellido Materno"
-                fullWidth
-                value={subject.apellido_materno || ""}
-                onChange={handleChange("apellido_materno")}
-                disabled={readonly}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
                 label="Cédula de Identidad"
                 fullWidth
                 value={subject.ci || ""}

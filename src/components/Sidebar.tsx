@@ -24,9 +24,9 @@ import UserAvatarMenu from "./AvatarMenu";
 import SearchIcon from "@mui/icons-material/Search";
 import IncompleteCircleIcon from "@mui/icons-material/IncompleteCircle";
 import TaskIcon from "@mui/icons-material/Task";
-import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useLocation } from "react-router-dom";
+import NotificationsBell from "./NotificationsBell";
 
 const drawerWidth = 240;
 
@@ -43,13 +43,22 @@ const sidebarLinks = [
     url: Urls.HISTORY,
     icon: <PendingIcon />,
   },
- //  {
- //    text: "Peticiones Externas",
- //    url: Urls.REQUESTS,
- //    icon: <ArrowOutwardIcon />,
- //  },
-   { text: "Reportes", url: Urls.REPORTS, icon: <TaskIcon /> },
+  //  {
+  //    text: "Peticiones Externas",
+  //    url: Urls.REQUESTS,
+  //    icon: <ArrowOutwardIcon />,
+  //  },
+  { text: "Reportes", url: Urls.REPORTS, icon: <TaskIcon /> },
 ];
+
+const moduleIconMap: Record<string, React.ReactNode> = {
+  HOME: <HomeIcon />,
+  COMPLETE: <IncompleteCircleIcon />,
+  FREE: <SearchIcon />,
+  HISTORY: <PendingIcon />,
+  REPORTS: <TaskIcon />,
+  SETTINGS: <SettingsIcon />,
+};
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -138,6 +147,9 @@ export default function Sidebar() {
   const [userName, setUserName] = useState("");
   const [role, setRole] = useState<Role[]>([]);
   const [photo, setPhoto] = useState("");
+  // const [sidebarLinks, setSidebarLinks] = useState<
+  //   { text: string; url: string; icon: React.ReactNode }[]
+  // >([]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -147,7 +159,7 @@ export default function Sidebar() {
     setOpen(false);
   };
 
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const isSettingsActive = location.pathname === "/settings";
 
@@ -156,6 +168,15 @@ export default function Sidebar() {
       setUserName(user.userName);
       setRole(user.roles);
       setPhoto(user.imageUser);
+
+      /*
+      const linksFromModules = user.modules.map((module) => ({
+        text: module.name,
+        url: Urls[module.name as keyof typeof Urls],
+        icon: moduleIconMap[module.name] || <HomeIcon />,
+      }));
+      setSidebarLinks(linksFromModules);
+      */
     }
   }, [user]);
 
@@ -177,12 +198,13 @@ export default function Sidebar() {
           </IconButton>
           <Box
             component="img"
-            src="\Nexus_30171.png"
+            src="\Nexus.jpg"
             alt="Nexus Logo"
             sx={{
               height: 40,
               width: "auto",
               mr: 2,
+              borderRadius: 1,
             }}
           />
           <Typography
@@ -193,6 +215,7 @@ export default function Sidebar() {
           >
             Sistema NEXUS - CFI
           </Typography>
+          <NotificationsBell />
           <Box
             sx={{
               display: "flex",
@@ -243,7 +266,7 @@ export default function Sidebar() {
         <List>
           {sidebarLinks.map((item, index) => {
             const isActive = location.pathname === item.url;
-
+            if (loading) return null;
             return (
               <Box key={index}>
                 <ListItemButton

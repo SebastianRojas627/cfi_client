@@ -31,7 +31,7 @@ const CompleteRequestContainer: React.FC = () => {
     segip: false,
     sinarap: false,
     itv: false,
-    anh: false,
+    //anh: false,
   });
   const [sujetos, setSujetos] = useState<SujetoBusqueda[]>([]);
   const [solicitudes, setSolicitudes] = useState<SolicitudInformacion[]>([]);

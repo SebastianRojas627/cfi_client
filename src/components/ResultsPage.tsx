@@ -5,7 +5,7 @@ const ResultsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const response = location.state?.results;
+  const response = location.state?.data;
 
   if (!response) {
     return (

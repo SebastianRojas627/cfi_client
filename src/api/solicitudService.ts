@@ -8,6 +8,7 @@ import {
   ResultadosSolicitudCompleta,
   SolicitudInformacion,
   TableRequest,
+  UserNotification,
 } from "./types";
 
 export const getSolicitudes = async (offset: number, limit: number) => {
@@ -58,9 +59,17 @@ export const getRequest = async (request: any) => {
   return response.data;
 };
 
-export const getResultadosSolicitudCompleta = async (numero_caso: number) => {
+export const resolverBusquedaLibre = async (request: SolicitudInformacion) => {
+  const response = await solicitudesClient.post<ResultadoBusqueda>(
+    "/respuestas/libre",
+    request
+  );
+  return response.data;
+};
+
+export const getResultadosSolicitudCompleta = async (solicitud_informacion_id: string) => {
   const response = await solicitudesClient.get<ResultadosSolicitudCompleta>(
-    `/respuestas/${numero_caso}`
+    `/respuestas/${solicitud_informacion_id}`
   );
   return response.data;
 };
@@ -91,5 +100,15 @@ export const getReportesSolicitud = async (offset: number, limit: number) => {
   const response = await solicitudesClient.get("/solicitud-informacion", {
     params: { limit, offset },
   });
+  return response.data;
+};
+
+export const getUserNotifications = async (user_id: string) => {
+  const response = await solicitudesClient.get<UserNotification[]>(`/notifications/${user_id}`);
+  return response.data;
+};
+
+export const markNotificationComplete = async (notification_id: number) => {
+  const response = await solicitudesClient.get<UserNotification[]>(`/notifications/complete/${notification_id}`);
   return response.data;
 };

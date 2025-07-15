@@ -106,7 +106,7 @@ const DocumentReport = () => {
   return (
     <Box p={3}>
       <Typography variant="h5" gutterBottom>
-        Historial de Solicitudes de Información
+        Historial de Reportes Generados
       </Typography>
       <Paper>
         <TableContainer>

@@ -6,10 +6,13 @@ import { Urls } from "./utils/routes";
 import Historial from "./views/Historial";
 import ResultsPage from "./components/ResultsPage";
 import CompleteRequestContainer from "./components/CompleteRequestContainer";
-import FreeSearchForm from "./components/FreeSearchForm";
 import LoadingRedirect from "./components/LoadingRedirect";
 import { UserConfigView } from "./views/UserConfig";
 import DocumentReport from "./views/DocumentReports";
+import FreeSearchView from "./views/FreeSearch";
+import ProtectedRoute from "./utils/ProtectedRoutes";
+import ErrorPage from "./views/ErrorPage";
+import UnauthorizedPage from "./views/UnauthorizedPage";
 
 function App() {
   const theme = createTheme({
@@ -57,19 +60,78 @@ function App() {
             <Route path="/auth/initialize" element={<LoadingRedirect />} />
             <Route
               path={Urls.COMPLETE + "/:solicitudId?"}
-              element={<CompleteRequestContainer />}
+              element={
+                <ProtectedRoute allowedRoles={["Administrador CFI"]}>
+                  <CompleteRequestContainer />
+                </ProtectedRoute>
+              }
             />
-            <Route path={Urls.FREE} element={<FreeSearchForm />} />
-            <Route path={Urls.HISTORY} element={<Historial />} />
-            <Route path={Urls.PENDING} element={<Historial />} />
-            <Route path={Urls.SETTINGS} element={<UserConfigView />} />
-            <Route path={Urls.HOME} element={<Dashboard />} />
-            <Route path={Urls.REQUESTS} element={<Dashboard />} />
-            <Route path={Urls.REPORTS} element={<DocumentReport />} />
+            <Route
+              path={Urls.FREE}
+              element={
+                <ProtectedRoute allowedRoles={["Administrador CFI"]}>
+                  <FreeSearchView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={Urls.HISTORY}
+              element={
+                <ProtectedRoute allowedRoles={["Administrador CFI"]}>
+                  <Historial />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={Urls.PENDING}
+              element={
+                <ProtectedRoute allowedRoles={["Administrador CFI"]}>
+                  <Historial />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={Urls.SETTINGS}
+              element={
+                <ProtectedRoute allowedRoles={["Administrador CFI"]}>
+                  <UserConfigView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={Urls.HOME}
+              element={
+                <ProtectedRoute allowedRoles={["Administrador CFI"]}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={Urls.REQUESTS}
+              element={
+                <ProtectedRoute allowedRoles={["Administrador CFI"]}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={Urls.REPORTS}
+              element={
+                <ProtectedRoute allowedRoles={["Administrador CFI"]}>
+                  <DocumentReport />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path={Urls.RESULTS + "/:solicitudId"}
-              element={<ResultsPage />}
+              element={
+                <ProtectedRoute allowedRoles={["Administrador CFI"]}>
+                  <ResultsPage />
+                </ProtectedRoute>
+              }
             />
+            <Route path="/error" element={<ErrorPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
             <Route path="*" element={<Navigate to="/home" />} />
           </Routes>
         </Layout>

@@ -7,6 +7,8 @@ export interface SolicitudInformacion {
   numero_copias: number;
   unidad_investigativa: string;
   numero_caso_unidad: string;
+  consulta_libre: boolean
+  detalles: string;
   sujetos: SujetoBusqueda[];
   sistemas: SistemasSolicitados;
   fecha_solicitud: Date;
@@ -17,20 +19,17 @@ export interface SistemasSolicitados {
   segip: boolean;
   itv: boolean;
   sinarap: boolean;
-  anh: boolean;
+  // anh: boolean;
 }
 
 export interface SujetoBusqueda {
   tipo: TipoSujeto;
-  nombres: string;
-  apellido_paterno: string;
-  apellido_materno: string;
-  ci: string;
-  complemento: string;
-  placa: string;
-  carguio_combustible: boolean;
-  fechaini: Date | null;
-  fechafin: Date | null;
+  ci: string | null;
+  complemento: string | null;
+  placa: string | null;
+  // carguio_combustible: boolean;
+  // fechaini: Date | null;
+  // fechafin: Date | null;
 }
 
 export interface ObjetoBusqueda {
@@ -41,6 +40,7 @@ export interface ObjetoBusqueda {
 }
 
 export interface ResultadoBusqueda {
+  solicitud_informacion_id: string;
   numero_caso: number;
   results: RespuestaSujeto[];
 }
@@ -68,12 +68,12 @@ export interface RespuestaSujeto {
 
   itv?: RespuestaItv;
 
-  anh?: RespuestaAnh;
+  // anh?: RespuestaAnh;
 }
 
 export interface GenerateReport {
   usuario_id: string;
-  numero_caso: number;
+  solicitud_informacion_id: string;
   justificacion: string;
 }
 
@@ -244,4 +244,14 @@ export interface MetaData {
 export interface RespuestaReporte {
   data: Reporte[];
   meta: MetaData
+}
+
+export interface UserNotification {
+  notification_id: number;
+  usuario_id: string;
+  title: string;
+  solicitud_informacion_id: string;
+  message: string;
+  fecha_solicitud: Date;
+  completada: boolean;
 }

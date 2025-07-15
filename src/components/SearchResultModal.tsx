@@ -3,7 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { RespuestaSujeto } from "../api/types";
 import { SegipInfo } from "./SegipInfo";
 import { ItvInfo } from "./ItvInfo";
-import { AnhInfo } from "./AnhInfo";
+// import { AnhInfo } from "./AnhInfo";
 import { SinarapInfo } from "./SinarapInfo";
 
 interface SearchResultModalProps {
@@ -37,14 +37,14 @@ export const SearchResultModal: React.FC<SearchResultModalProps> = ({
         {result.itv && result.itv.datos_tecnicos && (
           <ItvInfo itv={result.itv} />
         )}
-        {result.anh && (
+        {/*result.anh && (
           <AnhInfo
             anh={{
               ...result.anh.vehiculo,
               cargas_combustible: result.anh.cargas_combustible,
             }}
           />
-        )}
+        )*/}
         {result.sinarap && <SinarapInfo sinarap={result.sinarap} />}
       </DialogContent>
     </Dialog>

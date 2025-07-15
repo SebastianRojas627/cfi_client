@@ -17,6 +17,7 @@ import { ResultadoBusqueda } from "../api/types";
 import { DocumentPreviewer } from "../components/DocumentPreviewer";
 import { getGeneratedReport } from "../api/solicitudService";
 import { useForm } from "react-hook-form";
+import { useAuth } from "../hooks/useAuth";
 
 export const SearchResultsView = ({
   response,
@@ -30,6 +31,7 @@ export const SearchResultsView = ({
   const [showJustificationDialog, setShowJustificationDialog] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
 
+  const { user } = useAuth()
   const {
     register,
     handleSubmit,
@@ -50,9 +52,11 @@ export const SearchResultsView = ({
       setLoadingPDF(true);
       setDialogOpen(true);
 
+      console.log(response.solicitud_informacion_id)
+
       const res = await getGeneratedReport({
-        usuario_id: "asdf45",
-        numero_caso: response.numero_caso,
+        usuario_id: "Sebastian Rojas", // user?.fullName,
+        solicitud_informacion_id: response.solicitud_informacion_id,
         justificacion: justificationText,
       });
 

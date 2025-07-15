@@ -218,8 +218,12 @@ const Dashboard = () => {
               {ultimasSolicitudes!.map((req) => (
                 <ListItem key={req.solicitud_informacion_id} divider>
                   <ListItemText
-                    primary={`${req.numero_caso} - ${req.delito} - ${req.numero_caso_unidad}`}
-                    secondary={`Fecha: ${req.fecha_solicitud} | Estado: ${
+                    primary={
+                      req.consulta_libre
+                        ? `${req.numero_caso} - Consulta Libre`
+                        : `${req.numero_caso} - ${req.delito} - ${req.numero_caso_unidad}`
+                    }
+                    secondary={`Fecha: ${new Date(req.fecha_solicitud).toISOString().split("T")[0]} | Estado: ${
                       req.completado ? "Completado" : "Pendiente"
                     }`}
                   />

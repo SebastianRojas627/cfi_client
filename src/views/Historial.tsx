@@ -17,11 +17,15 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Chip,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CloseIcon from "@mui/icons-material/Close";
-import { getResultadosSolicitudCompleta, getSolicitudes } from "../api/solicitudService";
+import {
+  getResultadosSolicitudCompleta,
+  getSolicitudes,
+} from "../api/solicitudService";
 import { SolicitudInformacion } from "../api/types";
 import SolicitudDetail from "../components/SolicitudDetail";
 import { useNavigate } from "react-router";
@@ -36,7 +40,7 @@ const RequestHistory = () => {
   );
   const [detailOpen, setDetailOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [dialogCaso, setDialogCaso] = useState(0)
+  const [dialogCaso, setDialogCaso] = useState("");
   const navigate = useNavigate();
 
   const handleOpenDetail = (id: string) => {
@@ -85,19 +89,20 @@ const RequestHistory = () => {
 
   const handleGetResults = async () => {
     setConfirmOpen(true);
-    const data = await getResultadosSolicitudCompleta(dialogCaso)
-    const { solicitud_informacion_id, ...results} = data;
-    navigate(`/results/${solicitud_informacion_id}`, { state: { results } });
+    const data = await getResultadosSolicitudCompleta(dialogCaso);
+    const { solicitud_informacion_id } = data;
+    console.log(data)
+    navigate(`/results/${solicitud_informacion_id}`, { state: { data } });
   };
 
   const handleCancel = () => {
     setConfirmOpen(false);
-    setDialogCaso(0)
+    setDialogCaso("");
   };
 
-  const handleVerResultados = (numero_caso: number) => {
-    setConfirmOpen(true)
-    setDialogCaso(numero_caso)
+  const handleVerResultados = (solicitud_informacion_id: string) => {
+    setConfirmOpen(true);
+    setDialogCaso(solicitud_informacion_id);
   };
 
   return (
@@ -109,26 +114,73 @@ const RequestHistory = () => {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell>Numero de Caso</TableCell>
-                <TableCell>Unidad Investigativa</TableCell>
-                <TableCell>Delito</TableCell>
-                <TableCell>Investigador</TableCell>
-                <TableCell>Fecha Solicitud</TableCell>
-                <TableCell>Estado</TableCell>
-                <TableCell align="center">Acciones</TableCell>
+              <TableRow
+                sx={{
+                  backgroundColor: "#f9f9f9",
+                  "&:hover": {
+                    backgroundColor: "#f0f0f0",
+                  },
+                }}
+              >
+                <TableCell align="center">
+                  <strong>Numero de Caso</strong>
+                </TableCell>
+                <TableCell align="center">
+                  <strong>Unidad Investigativa</strong>
+                </TableCell>
+                <TableCell align="center">
+                  <strong>Delito</strong>
+                </TableCell>
+                <TableCell align="center">
+                  <strong>Investigador</strong>
+                </TableCell>
+                <TableCell align="center">
+                  <strong>Fecha Solicitud</strong>
+                </TableCell>
+                <TableCell align="center">
+                  <strong>Estado</strong>
+                </TableCell>
+                <TableCell align="center">
+                  <strong>Acciones</strong>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {responseRows.map((row) => (
-                <TableRow key={row.solicitud_informacion_id}>
-                  <TableCell>{row.numero_caso}</TableCell>
-                  <TableCell>{row.unidad_investigativa}</TableCell>
-                  <TableCell>{row.delito}</TableCell>
-                  <TableCell>{row.investigador}</TableCell>
-                  <TableCell>{new Date(row.fecha_solicitud).toISOString().split('T')[0]}</TableCell>
-                  <TableCell>
-                    {row.completado ? "Completado" : "Pendiente"}
+              {responseRows.map((row, index) => (
+                <TableRow
+                  key={row.solicitud_informacion_id}
+                  sx={{
+                    backgroundColor: index % 2 === 0 ? "white" : "#f9f9f9",
+                    "&:hover": {
+                      backgroundColor: "#f0f0f0",
+                    },
+                  }}
+                >
+                  <TableCell align="center">{row.numero_caso}</TableCell>
+                  <TableCell align="center">
+                    {row.consulta_libre ? "CFI" : row.unidad_investigativa}
+                  </TableCell>
+                  <TableCell align="center">
+                    {row.consulta_libre ? "Consulta Libre" : row.delito}
+                  </TableCell>
+                  <TableCell align="center">{row.investigador}</TableCell>
+                  <TableCell align="center">
+                    {new Date(row.fecha_solicitud).toISOString().split("T")[0]}
+                  </TableCell>
+                  <TableCell align="center">
+                    {row.completado ? (
+                      <Chip
+                        label="Completado"
+                        color="success"
+                        variant="outlined"
+                      />
+                    ) : (
+                      <Chip
+                        label="Pendiente"
+                        color="error"
+                        variant="outlined"
+                      />
+                    )}
                   </TableCell>
                   <TableCell align="center">
                     <IconButton
@@ -142,7 +194,9 @@ const RequestHistory = () => {
                     {row.completado && (
                       <IconButton
                         title="Ver Resultados"
-                        onClick={() => handleVerResultados(row.numero_caso)}
+                        onClick={() =>
+                          handleVerResultados(row.solicitud_informacion_id)
+                        }
                       >
                         <AssignmentIcon />
                       </IconButton>
@@ -189,8 +243,7 @@ const RequestHistory = () => {
         <DialogTitle>Confirmar búsqueda</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            ¿Está seguro de que desea ver los resultados del caso #{dialogCaso}
-            ?
+            ¿Está seguro de que desea ver los resultados del caso #{dialogCaso}?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
